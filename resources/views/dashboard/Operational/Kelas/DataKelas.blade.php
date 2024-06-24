@@ -1,6 +1,6 @@
-@extends('layoutDash.main');
+@extends('layoutDash.main')
 
-  @section('content');
+  @section('content')
   <!-- Content Wrapper. Contains page content -->
   <div class="content-wrapper">
     <!-- Content Header (Page header) -->
@@ -24,14 +24,14 @@
     <!-- Main content -->
     <section class="content">
       <div class="container-fluid">
-        
+
             @if (session('Success'))
             <div class="alert alert-success alert-dismissible fade show" role="alert">
               {{session('Success')}}
               <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                 <span aria-hidden="true">&times;</span>
               </button>
-            </div>  
+            </div>
             @endif
         {{-- table --}}
         <div class="card">
@@ -45,24 +45,32 @@
               <tr>
                 <th>No</th>
                 <th>Kelas</th>
-                <th>Wali Kelas</th>
                 <th>Murid</th>
-                <th>Action</th>
               </tr>
               </thead>
               <tbody>
                 @foreach ($kelas as $class)
                 <tr>
                     <td>{{$loop->iteration}}</td>
-                    <td>{{ $class->nama_kelas }}</td>
-                    <td>{{ $class->wali_kelas }}</td>
+                    <td>
+                    @if($class->angka_kelas <= 6)
+                      {{ $class->angka_kelas}}
+                    @elseif($class->angka_kelas == 7)
+                      Lulus
+                    @elseif($class->angka_kelas == 8)
+                      Tanpa Kelas 
+                    @endif
+                    </td>
+                    @if($class->angka_kelas <= 6)
                     <td>
                       <a href="" class="btn btn-info"><i class="fas fa-person"></i>Murid</a>
                     </td>
+                    @else
                     <td>
-                      <a href="" class="btn btn-warning">Edit</a>
-                      <a href="" class="btn btn-danger">Hapus</a>
+                      -
                     </td>
+                    @endif
+                    
                 </tr>
                 @endforeach
               </tbody>
@@ -70,9 +78,7 @@
               <tr>
                 <th>No</th>
                 <th>Kelas</th>
-                <th>Wali Kelas</th>
                 <th>Murid</th>
-                <th>Action</th>
               </tr>
               </tfoot>
             </table>

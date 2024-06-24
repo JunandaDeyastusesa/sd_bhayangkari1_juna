@@ -48,21 +48,23 @@
     <form action="{{ route('kelas.store') }}" method="POST" class="form-horizontal">
         @csrf
       <div class="card-body">
-        <div class="form-group row">
-          <label for="nama_kelas" class="col-sm-2 col-form-label">Nama Kelas</label>
-          <div class="col-sm-10">
-            <input name="nama_kelas" type="text" class="form-control" id="nama_kelas" placeholder="Masukan Nama Kelas...">
+          <div class="row ">
+            <div class="col-md-12">
+              <label for="exampleSelectBorder">Angka Kelas</label>
+              <select name="angka_kelas" class="custom-select form-control" id="exampleSelectBorder">
+                      <option   selected> Silahkan pilih kelas... </option>            
+                      <option  value="1"> 1 </option>
+                      <option  value="2"> 2 </option>
+                      <option  value="3"> 3 </option>
+                      <option  value="4"> 4 </option>
+                      <option  value="5"> 5 </option>
+                      <option  value="6"> 6 </option>
+                      <option  value="7"> Lulus </option>
+                      <option  value="8"> Tanpa Kelas </option>
+
+              </select>
+            </div>
           </div>
-        </div>
-        <div class="form-group col-sm-6">
-          <label for="exampleSelectBorder">Wali Kelas</label>
-          <select name="wali_kelas" class="custom-select form-control" id="exampleSelectBorder">
-              @foreach ($guru as $guru)
-                  <option name="wali_kelas" value="{{$guru->id}}" selected>{{$guru->nama_guru}}</option>
-              @endforeach
-          </select>
-        </div>
-       
       </div>
       <!-- /.card-body -->
       <div class="card-footer">
