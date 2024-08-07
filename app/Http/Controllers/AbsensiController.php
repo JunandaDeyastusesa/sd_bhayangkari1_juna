@@ -356,31 +356,46 @@ class AbsensiController extends Controller
 
     public function editAbsensi($id, $id_kelas, $id_siswa, Request $request)
     {
-        $title = "Edit Absensi Siswa";
-        $DataAbsensiNow = DB::table('absensi')
-            ->join('siswas', 'siswas.id', '=', 'absensi.id_siswa')
-            ->join('kelas', 'absensi.id_kelas', '=', 'kelas.id')
-            ->select('absensi.*', 'kelas.angka_kelas', 'kelas.id as id_kelas', 'siswas.nama_siswa')
-            ->where('absensi.id', $id)
-            ->first();
+       if (Auth::guard('guru')->check()) {
+            if (Auth::guard('guru')->user()->level == 'tata usaha') {
+                $title = "Edit Absensi Siswa";
+                $DataAbsensiNow = DB::table('absensi')
+                    ->join('siswas', 'siswas.id', '=', 'absensi.id_siswa')
+                    ->join('kelas', 'absensi.id_kelas', '=', 'kelas.id')
+                    ->select('absensi.*', 'kelas.angka_kelas', 'kelas.id as id_kelas', 'siswas.nama_siswa')
+                    ->where('absensi.id', $id)
+                    ->first();
 
-        return view('dashboard.Absensi.EditAbsensiAdm', [
-            'title' => $title,
-            'DataAbsensiNow' => $DataAbsensiNow,
-            'id_kelas' => $id_kelas,
-            'id_siswa' => $id_siswa,
-        ]);
+                return view('dashboard.Absensi.EditAbsensiAdm', [
+                    'title' => $title,
+                    'DataAbsensiNow' => $DataAbsensiNow,
+                    'id_kelas' => $id_kelas,
+                    'id_siswa' => $id_siswa,
+                ]);
+            } else {
+                return back();
+            }
+        } else {
+            return back();
+        }
     }
 
     public function updateAbsensi($id, $id_kelas, $id_siswa, Request $request)
     {
-        // dd($request,$id, $id_kelas, $id_siswa);
-        Absensi::Where('id', $id)->update([
-            'status' => $request->status,
-        ]);
+       if (Auth::guard('guru')->check()) {
+            if (Auth::guard('guru')->user()->level == 'tata usaha') {
+                // dd($request,$id, $id_kelas, $id_siswa);
+                Absensi::Where('id', $id)->update([
+                    'status' => $request->status,
+                ]);
+                return redirect()->route('ShowAbsensiPerSiswa', ['id_kelas' => $id_kelas, 'id_siswa' => $id_siswa])->with(['Success' => 'Data Berhasil Disimpan!']);
+            } else {
+                return back();
+            }
+        } else {
+            return back();
+        }
 
-
-        return redirect()->route('ShowAbsensiPerSiswa', ['id_kelas' => $id_kelas, 'id_siswa' => $id_siswa])->with(['Success' => 'Data Berhasil Disimpan!']);
     }
 
     // public function TransitIdSiswaHistoryAbsensi(Request $request, $id_kelas, $id_siswa)
@@ -595,58 +610,62 @@ class AbsensiController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        if (Auth::guard('guru')->user()->level == 'tata usaha' || Auth::guard('guru')->user()->level == 'wali kelas') {
+        if (Auth::guard('guru')->check()) {
 
-            $messages = [
-                'catatan.required' => 'Catatan wajib diisi.',
-                'catatan.string' => 'Catatan harus berupa teks.',
-                'catatan.max' => 'Catatan maksimal 255 karakter.',
-                'foto_surat_izin.required' => 'Foto surat izin wajib diunggah.',
-                'foto_surat_izin.image' => 'File harus berupa gambar.',
-                'foto_surat_izin.mimes' => 'Format gambar yang diizinkan: jpeg, png, jpg, gif, svg.',
-                // 'foto_surat_izin.max' => 'Ukuran gambar maksimal 2048 kilobytes.',
-            ];
+            if (Auth::guard('guru')->user()->level == 'tata usaha' || Auth::guard('guru')->user()->level == 'wali kelas') {
 
-            $validator = Validator::make($request->all(), [
-                'catatan' => 'required|string|max:255',
-                'foto_surat_izin' => 'required|image|mimes:jpeg,png,jpg,gif,svg',
-            ], $messages);
+                $messages = [
+                    'catatan.required' => 'Catatan wajib diisi.',
+                    'catatan.string' => 'Catatan harus berupa teks.',
+                    'catatan.max' => 'Catatan maksimal 255 karakter.',
+                    'foto_surat_izin.required' => 'Foto surat izin wajib diunggah.',
+                    'foto_surat_izin.image' => 'File harus berupa gambar.',
+                    'foto_surat_izin.mimes' => 'Format gambar yang diizinkan: jpeg, png, jpg, gif, svg.',
+                    // 'foto_surat_izin.max' => 'Ukuran gambar maksimal 2048 kilobytes.',
+                ];
 
-            $DataAbsensiNow = DB::table('absensi')
-                ->join('siswas', 'siswas.id', '=', 'absensi.id_siswa')
-                ->join('kelas', 'absensi.id_kelas', '=', 'kelas.id')
-                ->select('absensi.*', 'kelas.angka_kelas', 'kelas.id as id_kelas', 'siswas.nama_siswa')
-                ->where('absensi.id', $id)
-                ->first();
+                $validator = Validator::make($request->all(), [
+                    'catatan' => 'required|string|max:255',
+                    'foto_surat_izin' => 'required|image|mimes:jpeg,png,jpg,gif,svg',
+                ], $messages);
+
+                $DataAbsensiNow = DB::table('absensi')
+                    ->join('siswas', 'siswas.id', '=', 'absensi.id_siswa')
+                    ->join('kelas', 'absensi.id_kelas', '=', 'kelas.id')
+                    ->select('absensi.*', 'kelas.angka_kelas', 'kelas.id as id_kelas', 'siswas.nama_siswa')
+                    ->where('absensi.id', $id)
+                    ->first();
 
 
-            $image = $request->file('image');
-            //if you upload image
-            if ($image) {
-                $filename = $DataAbsensiNow->nama_siswa . date('Y-m-d') . $image->getClientOriginalName();
-                $path = 'absensi/' . $filename;
+                $image = $request->file('image');
+                //if you upload image
+                if ($image) {
+                    $filename = $DataAbsensiNow->nama_siswa . date('Y-m-d') . $image->getClientOriginalName();
+                    $path = 'absensi/' . $filename;
 
-                // Menggunakan putFile() untuk menyimpan file langsung
-                Storage::disk('public')->put($path, file_get_contents($image));
+                    // Menggunakan putFile() untuk menyimpan file langsung
+                    Storage::disk('public')->put($path, file_get_contents($image));
 
-                //action image
-                Absensi::Where('id', $id)->update([
-                    'foto_surat_izin' => $filename,
-                    'catatan' => $request->catatan,
-                ]);
+                    //action image
+                    Absensi::Where('id', $id)->update([
+                        'foto_surat_izin' => $filename,
+                        'catatan' => $request->catatan,
+                    ]);
 
-                return redirect()->route('ShowSiswaAbsensi', $DataAbsensiNow->id_kelas)->with(['Success' => 'Data Berhasil Disimpan!']);
+                    return redirect()->route('ShowSiswaAbsensi', $DataAbsensiNow->id_kelas)->with(['Success' => 'Data Berhasil Disimpan!']);
 
+                } else {
+                    Absensi::Where('id', $id)->update([
+                        'catatan' => $request->catatan,
+                    ]);
+
+                    return redirect()->route('ShowSiswaAbsensi', $DataAbsensiNow->id_kelas)->with(['Success' => 'Data Berhasil Disimpan!']);
+
+                }
             } else {
-                Absensi::Where('id', $id)->update([
-                    'catatan' => $request->catatan,
-                ]);
-
-                return redirect()->route('ShowSiswaAbsensi', $DataAbsensiNow->id_kelas)->with(['Success' => 'Data Berhasil Disimpan!']);
-
+                return back();
             }
         } else {
-            dd('err');
             return back();
         }
     }
