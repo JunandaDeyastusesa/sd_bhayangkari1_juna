@@ -41,8 +41,8 @@ class KelasController extends Controller
                 $kelas_id = $id;
                 $kelas_siswa = Kelas::findOrFail($id);
                 $nama_kelas = $kelas_siswa->angka_kelas;
-        
-                $title = "Tambah Siswa";
+
+                $title = "Tambah Data Siswa";
                 $kelas = Kelas::all();
                 return view('dashboard.Operational.Kelas.TambahDataKelas', compact('title', 'kelas', 'kelas_id', 'nama_kelas'));
             } else {
@@ -175,7 +175,7 @@ class KelasController extends Controller
      */
     public function edit(string $id, string $kelas_id)
     {
-        $title = "Edit Siswa";
+        $title = "Edit Data Siswa";
         $kelas = Kelas::all();
         $siswa = Siswa::find($id);
         $kelas_siswa = Kelas::findOrFail($kelas_id);

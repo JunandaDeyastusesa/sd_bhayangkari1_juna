@@ -14,7 +14,7 @@
                     <div class="col-sm-6">
                         <ol class="breadcrumb float-sm-right">
                             <li class="breadcrumb-item"><a href="{{route('dashboard')}}">Dashboard</a></li>
-                            <li class="breadcrumb-item"><a href="{{route('kelas.index')}}">Data Kelas</a></li>
+                            <li class="breadcrumb-item"><a href="{{route('kelas.index')}}">Daftar Kelas</a></li>
                             <li class="breadcrumb-item"><a href="{{route('kelas.show', $kelas_id)}}">Data Siswa Kelas {{$nama_kelas}}</a></li>
                             <li class="breadcrumb-item active">{{ $title }}</li>
                         </ol>

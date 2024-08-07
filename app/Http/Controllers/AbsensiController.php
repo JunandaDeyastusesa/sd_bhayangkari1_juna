@@ -23,7 +23,7 @@ class AbsensiController extends Controller
     {
         if (Auth::guard('guru')->check() || Auth::guard('waliMurid')->check()) {
 
-            $title = "Data Absensi Tiap Kelas";
+            $title = "Absensi Kelas";
             $kelas = DB::table('kelas')
                 ->join('gurus', 'gurus.kelas_id', '=', 'kelas.id')
                 ->select('kelas.*', 'gurus.nama_guru')
@@ -290,7 +290,7 @@ class AbsensiController extends Controller
             } else {
                 return back();
             }
-        
+
     }
 
     public function ShowAllKelasTiapSiswa(string $id_kelas, $id_siswa)

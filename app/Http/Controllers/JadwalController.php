@@ -24,7 +24,7 @@ class JadwalController extends Controller
     public function index(string $id = null)
     {
         if (Auth::guard('guru')->check() || Auth::guard('waliMurid')->check()) {
-            $title = "Pilih Kelas";
+            $title = "Daftar Kelas";
 
             // $jadwal = Jadwal::all();
             $kelas = DB::table('kelas')
