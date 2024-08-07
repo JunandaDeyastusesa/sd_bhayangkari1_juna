@@ -13,7 +13,7 @@
                     <div class="col-sm-6">
                         <ol class="breadcrumb float-sm-right">
                             <!-- Nav Page -->
-                            <li class="breadcrumb-item"><a href="{{route('dashboard')}}">Home</a></li>
+                            <li class="breadcrumb-item"><a href="{{route('dashboard')}}">Dashboard</a></li>
                             <li class="breadcrumb-item"><a href="{{ route('prestasi.index') }}">Prestasi</a></li>
                             <li class="breadcrumb-item"><a>{{$title}}</a></li>
                         </ol>

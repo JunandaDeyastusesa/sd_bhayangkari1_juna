@@ -14,8 +14,7 @@
                     </div><!-- /.col -->
                     <div class="col-sm-6">
                         <ol class="breadcrumb float-sm-right">
-                            <li class="breadcrumb-item"><a href="#">Home</a></li>
-                            <li class="breadcrumb-item active">{{ $title }}</li>
+                            <li class="breadcrumb-item">{{ $title }}</li>
                         </ol>
                     </div><!-- /.col -->
                 </div><!-- /.row -->
@@ -100,7 +99,7 @@
                         <!-- small box -->
                         <div class="small-box bg-success">
                             <div class="inner">
-                                <h3>History Absensi</sup></h3>
+                                <h3>History Absensi</h3>
                                 @if(Auth::guard('guru')->user()->level == 'wali kelas')
                                     <p>Data Rekap Absensi Siswa Kelas {{$DataGuru->angka_kelas}}</p>
                                 @else
