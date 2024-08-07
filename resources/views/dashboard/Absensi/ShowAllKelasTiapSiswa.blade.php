@@ -13,8 +13,12 @@
                     <div class="col-sm-6">
                         <ol class="breadcrumb float-sm-right">
                             <li class="breadcrumb-item"><a href="{{route('dashboard')}}">Dashboard</a></li>
-                            <li class="breadcrumb-item"><a href="{{route('absensi.index')}}">Absensi Kelas</a></li>
-                            <li class="breadcrumb-item"><a href="">Rekap Absensi Siswa</a></li>
+                            @if (Auth::guard('guru')->check())
+                                @if (Auth::guard('guru')->user()->level == 'tata usaha' || Auth::guard('guru')->user()->level == 'wali kelas')
+                                    <li class="breadcrumb-item"><a href="{{route('absensi.index')}}">Absensi Kelas</a></li>
+                                    <li class="breadcrumb-item"><a href="">Rekap Absensi Siswa</a></li>
+                                @endif
+                            @endif
                             <li class="breadcrumb-item active">{{ $title }}</li>
                         </ol>
                     </div><!-- /.col -->
