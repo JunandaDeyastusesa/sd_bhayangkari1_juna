@@ -301,7 +301,7 @@ class AbsensiController extends Controller
                 $id_kelas_session = session('id_kelas');
                 // dd($id_siswa_session,$id_kelas_session);
 
-                $title = "Pilih Kelas Siswa";
+                $title = "Riwayat Absesi Siswa";
                 $kelas = DB::table('kelas')
                     ->select('kelas.*')
                     ->take(6)

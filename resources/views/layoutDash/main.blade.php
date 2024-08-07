@@ -37,6 +37,7 @@
     <link rel="stylesheet" href="{{ asset('lte/plugins/datatables-responsive/css/responsive.bootstrap4.min.css') }}">
     <link rel="stylesheet" href="{{ asset('lte/plugins/datatables-buttons/css/buttons.bootstrap4.min.css') }}">
     {{-- <link rel="stylesheet" href="{{ asset('style.css') }}"> --}}
+    <link rel="icon" href="{{ asset('web_assets/img/logo_sekolah.png')}}">
 </head>
 
 <body class="hold-transition sidebar-mini layout-fixed">
@@ -102,7 +103,7 @@
                                             Dashboard
                                         </p>
                                     </a>
-                                </li> 
+                                </li>
                             <!-- Add icons to the links using the .nav-icon class
                             with font-awesome or any other icon font library -->
                             <li class="nav-header">Operasional</li>
@@ -233,7 +234,7 @@
                                             Dashboard
                                         </p>
                                     </a>
-                                </li>    
+                                </li>
                             <li class="nav-header">Operasional</li>
                                 <li class="nav-item">
                                     <a href="{{ route('jadwal.show',Auth::guard('waliMurid')->user()->kelas_id) }}" class="nav-link">
