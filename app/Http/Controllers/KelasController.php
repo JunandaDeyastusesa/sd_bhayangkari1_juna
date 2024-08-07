@@ -36,13 +36,21 @@ class KelasController extends Controller
      */
     public function create(string $id)
     {
-        $kelas_id = $id;
-        $kelas_siswa = Kelas::findOrFail($id);
-        $nama_kelas = $kelas_siswa->angka_kelas;
-
-        $title = "Tambah Siswa";
-        $kelas = Kelas::all();
-        return view('dashboard.Operational.Kelas.TambahDataKelas', compact('title', 'kelas', 'kelas_id', 'nama_kelas'));
+        if (Auth::guard('guru')->check()) {
+            if (Auth::guard('guru')->user()->level == 'tata usaha') {
+                $kelas_id = $id;
+                $kelas_siswa = Kelas::findOrFail($id);
+                $nama_kelas = $kelas_siswa->angka_kelas;
+        
+                $title = "Tambah Siswa";
+                $kelas = Kelas::all();
+                return view('dashboard.Operational.Kelas.TambahDataKelas', compact('title', 'kelas', 'kelas_id', 'nama_kelas'));
+            } else {
+                return back();
+            }
+        } else {
+            return back();
+        }
     }
 
     /**
