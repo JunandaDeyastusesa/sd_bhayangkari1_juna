@@ -23,8 +23,8 @@ class JadwalController extends Controller
      */
     public function index(string $id = null)
     {
-        $title = "Pilih Kelas";
         if (Auth::guard('guru')->check() || Auth::guard('waliMurid')->check()) {
+            $title = "Pilih Kelas";
 
             // $jadwal = Jadwal::all();
             $kelas = DB::table('kelas')
@@ -85,7 +85,7 @@ class JadwalController extends Controller
      */
     public function store(Request $request)
     {
-        if (Auth::guard('guru')->check() || Auth::guard('waliMurid')->check()) {
+        if (Auth::guard('guru')->check()) {
             if (Auth::guard('guru')->user()->level == 'tata usaha' || Auth::guard('guru')->user()->level == 'wali kelas') {
 
                 $messages = [
