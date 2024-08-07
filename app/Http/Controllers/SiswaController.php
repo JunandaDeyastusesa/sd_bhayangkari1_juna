@@ -55,7 +55,7 @@ class SiswaController extends Controller
 
             if (Auth::guard('guru')->user()->level == 'tata usaha') {
 
-                $title = "Tambah Siswa";
+                $title = "Tambah Data Siswa";
                 $kelas = Kelas::all();
                 // return view('list-barang.create', compact('_satuan'));
                 return view('dashboard.Siswa.TambahDataSiswa', compact('title', 'kelas'));
@@ -253,7 +253,7 @@ class SiswaController extends Controller
 
                 // $pageTitle = 'Employee Detail';
                 // ELOQUENT
-                $title = "Edit Siswa";
+                $title = "Edit Data Siswa";
                 $kelas = Kelas::all();
                 $siswa = Siswa::find($id);
                 return view('dashboard.Siswa.EditDataSiswa', compact('title', 'siswa', 'kelas'));

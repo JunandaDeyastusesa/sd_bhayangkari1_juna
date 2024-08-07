@@ -41,8 +41,6 @@
                         <h2 class="card-title">{{ $title }}</h2>
                     </div>
 
-
-
                     <!-- /.card-header -->
                     <!-- form start -->
                     <form id="nilaiForm" action="{{ route('nilai.update', $data->id) }}" method="POST" enctype="multipart/form-data">
