@@ -9,7 +9,7 @@
                 <div class="row mb-2">
                     <div class="col-sm-6">
                         @if (Auth::guard('guru')->check())
-                        <h1 class="m-0">Selamat datang : {{ Auth::guard('guru')->user()->nama_guru }}</h1>
+                        <h1 class="m-0">Selamat Datang Kembali {{ Auth::guard('guru')->user()->nama_guru }}</h1>
                     @endif
                     </div><!-- /.col -->
                     <div class="col-sm-6">
@@ -29,7 +29,7 @@
                 <!-- Small boxes (Stat box) -->
 
                 @if (Auth::guard('guru')->check())
-                    
+
                 @endif
 
                 <div class="w-full col-md-12 row">
@@ -78,11 +78,11 @@
                         <div class="inner">
                             <h3>Siswa</h3>
                             @if(Auth::guard('guru')->user()->level == 'wali kelas')
-                            <p>Data Siswa 
+                            <p>Data Siswa
                                 Kelas: {{$DataGuru->angka_kelas}}
                             </p>
                             @else
-                            <p>Data Siswa 
+                            <p>Data Siswa
                             </p>
                             @endif
                         </div>
