@@ -10,12 +10,19 @@ class Kelas extends Model
     use HasFactory;
 
     protected $fillable = [
-        'nama_kelas',
-        'wali_kelas',
+        'angka_kelas',
     ];
+
+    public function guru()
+    {
+        return $this->belongsTo(Guru::class, 'id');
+    }
+
     public function siswa()
-{
-    return $this->hasMany(Siswa::class);
-}
+    {
+        return $this->hasMany(Siswa::class);
+    }
+
+
 
 }

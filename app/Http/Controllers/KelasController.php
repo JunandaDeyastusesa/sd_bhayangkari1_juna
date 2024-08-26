@@ -6,9 +6,13 @@ use App\Models\Kelas;
 use App\Models\Guru;
 
 
+use App\Models\Siswa;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
+use RealRashid\SweetAlert\Facades\Alert;
 
 class KelasController extends Controller
 {
@@ -18,28 +22,35 @@ class KelasController extends Controller
     public function index()
     {
         $title = "Data Kelas";
-        $kelas = DB::table('kelas')
-                ->select('kelas.*', 'kelas.id as kelas_id')
-                ->get();
+        // $kelas = Kelas::all();
+        $kelas = DB::table('kelas')->join('gurus', 'gurus.kelas_id', '=', 'kelas.id')->select('kelas.*', 'gurus.nama_guru')->orderBy('angka_kelas', 'asc')->get();
 
-        return view('dashboard.Operational.Kelas.DataKelas',[
-            'title'=>$title,
-            'kelas'=>$kelas,
+        return view('dashboard.Operational.Kelas.DataKelas', [
+            'title' => $title,
+            'kelas' => $kelas,
         ]);
     }
 
     /**
      * Show the form for creating a new resource.
      */
-    public function create()
+    public function create(string $id)
     {
-        $title = "Tambah Data Kelas";
-        $guru = DB::table('guru')->select('guru.*', 'guru.id,guru.nama_guru')->get();
-        $Kelas = "";
-        return view('dashboard.Operational.Kelas.TambahDataKelas',[
-            'title'=>$title,
-            'DataGuru'=>$guru,
-        ]);
+        if (Auth::guard('guru')->check()) {
+            if (Auth::guard('guru')->user()->level == 'tata usaha') {
+                $kelas_id = $id;
+                $kelas_siswa = Kelas::findOrFail($id);
+                $nama_kelas = $kelas_siswa->angka_kelas;
+
+                $title = "Tambah Data Siswa";
+                $kelas = Kelas::all();
+                return view('dashboard.Operational.Kelas.TambahDataKelas', compact('title', 'kelas', 'kelas_id', 'nama_kelas'));
+            } else {
+                return back();
+            }
+        } else {
+            return back();
+        }
     }
 
     /**
@@ -47,28 +58,91 @@ class KelasController extends Controller
      */
     public function store(Request $request)
     {
-        $messages = [
-            'required' => ':Attribute harus diisi.',
-            'email' => 'Isi :attribute dengan format yang benar',
-            'numeric' => 'Isi :attribute dengan angka'
-        ];
-        
-        $validator = Validator::make($request->all(), [
-            'nama_kelas' => 'required',
-            'wali_kelas' => 'required',
-        ], $messages);
+        if (Auth::guard('guru')->user()->level == 'tata usaha') {
+            // Validasi data yang diterima dari form
 
-        if ($validator->fails()) {
-            return redirect()->back()->withErrors($validator)->withInput();
+            $customMessages = [
+                'NISN.required' => 'NISN wajib diisi.',
+                'NISN.unique' => 'NISN sudah terdaftar.',
+                'NIK.required' => 'NIK wajib diisi.',
+                'NIK.unique' => 'NIK sudah terdaftar.',
+                'NIS.required' => 'NIS wajib diisi.',
+                'NO_KK.required' => 'Nomor Kartu Keluarga wajib diisi.',
+                'nama_siswa.required' => 'Nama siswa wajib diisi.',
+                'tanggal_lahir.required' => 'Tanggal lahir wajib diisi.',
+                'wali_siswa.required' => 'Nama wali siswa wajib diisi.',
+                'jenis_kelamin.required' => 'Jenis kelamin wajib diisi.',
+                'kelas_id.required' => 'Kelas wajib dipilih.',
+                'email.required' => 'Email wajib diisi.',
+                'email.email' => 'Format email tidak valid.',
+                'email.unique' => 'Email sudah terdaftar.',
+                'password.required' => 'Password wajib diisi.',
+                'agama.required' => 'Agama wajib diisi.',
+                'tempat.required' => 'Tempat lahir wajib diisi.',
+                'anak_ke.required' => 'Anak keberapa wajib diisi.',
+                'anak_ke.integer' => 'Anak keberapa harus berupa angka.'
+            ];
+
+            $request->validate([
+                'NISN' => 'required|unique:siswas,nisn|numeric',
+                'NIK' => 'required|unique:siswas,nik|numeric',
+                'NIS' => 'required|numeric  ',
+                'NO_KK' => 'required|numeric',
+                'nama_siswa' => 'required|string|max:255',
+                'tanggal_lahir' => 'required|date',
+                'wali_siswa' => 'required|string|max:255',
+                'jenis_kelamin' => 'required|in:laki,perempuan',
+                'kelas' => 'required|exists:kelas,id',
+                'password' => 'required',
+                'email' => 'required',
+                'agama' => 'required|string|max:255',
+                'tempat' => 'required|string|max:255',
+                'anak_ke' => 'required',
+
+                'foto_siswa' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048', // Ubah sesuai kebutuhan
+            ], $customMessages);
+
+            // Simpan data guru ke dalam basis data
+            $siswa = new Siswa();
+            $siswa->NISN = $request->NISN;
+            $siswa->NIK = $request->NIK;
+            $siswa->NIS = $request->NIS;
+            $siswa->NO_KK = $request->NO_KK;
+            $siswa->nama_siswa = $request->nama_siswa;
+            $siswa->tanggal_lahir = $request->tanggal_lahir;
+            $siswa->wali_siswa = $request->wali_siswa;
+            $siswa->jenis_kelamin = $request->jenis_kelamin;
+            $siswa->kelas_id = $request->kelas;
+            $siswa->email = $request->email;
+            $siswa->password = Hash::make($request->password);
+
+            $siswa->agama = $request->agama;
+            $siswa->tempat = $request->tempat;
+            $siswa->anak_ke = $request->anak_ke;
+            // Mengelola file foto siswa
+            if ($request->hasFile('foto_siswa')) {
+                $image = $request->file('foto_siswa');
+                $imageName = time() . '.' . $image->getClientOriginalExtension();
+
+                // Menyimpan file ke direktori yang diinginkan di dalam penyimpanan publik
+                $path = $image->storeAs('public/siswa', $imageName);
+
+                // Mengupdate atribut foto_siswa dengan nama file yang disimpan
+                $siswa->foto_siswa = $imageName;
+            }
+
+
+            // Simpan data siswa
+            $siswa->save();
+
+            // Sweet alert
+            Alert::success('Berhasil Ditambahkan', 'Data Siswa berhasil ditambahkan.');
+
+            // Redirect ke halaman yang sesuai atau berikan respons JSON sesuai kebutuhan
+            return redirect()->route('kelas.show', $siswa->kelas_id);
+        } else {
+            return back();
         }
-
-        // ELOQUENT
-        $kelas = New kelas;
-        $kelas->nama_kelas = $request->nama_kelas;
-        $kelas->wali_kelas = $request->wali_kelas;
-        $kelas->save();
-
-        return redirect()->route('kelas.index')->with('Success','Data berhasil ditambahkan');
 
     }
 
@@ -77,15 +151,36 @@ class KelasController extends Controller
      */
     public function show(string $id)
     {
-        //
+        $guru = DB::table('siswas')  // Nama tabel harus 'siswas'
+        ->join('kelas', 'siswas.kelas_id', '=', 'kelas.id')  // Menggunakan 'siswas' bukan 'siswa'
+        ->select('siswas.*', 'kelas.angka_kelas')
+            ->where('siswas.kelas_id', $id)
+            ->get();
+
+        $kelas_id = $id;
+        $kelas_siswa = Kelas::findOrFail($id);
+        $nama_kelas = $kelas_siswa->angka_kelas;
+
+        $Title = 'Data Siswa Kelas ' . $nama_kelas;
+
+        return view('dashboard.Operational.Kelas.MuridTiapKelas', [
+            'title' => $Title,
+            'guru' => $guru,
+            'kelas' => $kelas_id,
+        ]);
     }
 
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(string $id)
+    public function edit(string $id, string $kelas_id)
     {
-        //
+        $title = "Edit Data Siswa";
+        $kelas = Kelas::all();
+        $siswa = Siswa::find($id);
+        $kelas_siswa = Kelas::findOrFail($kelas_id);
+        $nama_kelas = $kelas_siswa->angka_kelas;
+        return view('dashboard.Operational.Kelas.EditDataKelas', compact('title', 'siswa', 'kelas', 'kelas_id', 'nama_kelas'));
     }
 
     /**
@@ -93,7 +188,89 @@ class KelasController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+        $customMessages = [
+            'NISN.required' => 'NISN wajib diisi.',
+            'NISN.unique' => 'NISN sudah terdaftar.',
+            'NIK.required' => 'NIK wajib diisi.',
+            'NIK.unique' => 'NIK sudah terdaftar.',
+            'NIS.required' => 'NIS wajib diisi.',
+            'NO_KK.required' => 'Nomor Kartu Keluarga wajib diisi.',
+            'nama_siswa.required' => 'Nama siswa wajib diisi.',
+            'tanggal_lahir.required' => 'Tanggal lahir wajib diisi.',
+            'wali_siswa.required' => 'Nama wali siswa wajib diisi.',
+            'jenis_kelamin.required' => 'Jenis kelamin wajib diisi.',
+            'kelas_id.required' => 'Kelas wajib dipilih.',
+            'email.required' => 'Email wajib diisi.',
+            'email.email' => 'Format email tidak valid.',
+            'email.unique' => 'Email sudah terdaftar.',
+            'password.required' => 'Password wajib diisi.',
+            'agama.required' => 'Agama wajib diisi.',
+            'tempat.required' => 'Tempat lahir wajib diisi.',
+            'anak_ke.required' => 'Anak keberapa wajib diisi.',
+            'anak_ke.integer' => 'Anak keberapa harus berupa angka.'
+        ];
+
+        $request->validate([
+            'NISN' => 'required|numeric',
+            'NIK' => 'required|numeric',
+            'NIS' => 'required|numeric  ',
+            'NO_KK' => 'required|numeric',
+            'nama_siswa' => 'required|string|max:255',
+            'tanggal_lahir' => 'required|date',
+            'wali_siswa' => 'required|string|max:255',
+            'jenis_kelamin' => 'required|in:laki,perempuan',
+            'kelas' => 'required|exists:kelas,id',
+            'password' => 'required',
+            'email' => 'required',
+            'agama' => 'required|string|max:255',
+            'tempat' => 'required|string|max:255',
+            'anak_ke' => 'required',
+
+            // 'foto_siswa' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048', // Ubah sesuai kebutuhan
+        ], $customMessages);
+
+        // Temukan data siswa berdasarkan ID
+        $siswa = Siswa::findOrFail($id);
+
+        // Update data siswa
+        $siswa->nama_siswa = $request->nama_siswa;
+        $siswa->NISN = $request->NISN;
+        $siswa->tanggal_lahir = $request->tanggal_lahir;
+        $siswa->wali_siswa = $request->wali_siswa;
+        $siswa->jenis_kelamin = $request->jenis_kelamin;
+        $siswa->kelas_id = $request->kelas;
+        $siswa->agama = $request->agama;
+        $siswa->tempat = $request->tempat;
+        $siswa->email = $request->email;
+        $siswa->password = Hash::make($request->password);
+
+        $siswa->anak_ke = $request->anak_ke;
+        $siswa->semester = $request->semester;
+        $siswa->NIK = $request->NIK;
+        $siswa->NIS = $request->NIS;
+        $siswa->NO_KK = $request->NO_KK;
+
+        // Mengelola file foto siswa
+        if ($request->hasFile('foto_siswa')) {
+            $image = $request->file('foto_siswa');
+            $imageName = time() . '.' . $image->getClientOriginalExtension();
+
+            // Menyimpan file ke direktori yang diinginkan di dalam penyimpanan publik
+            $path = $image->storeAs('public/siswa', $imageName);
+
+            // Mengupdate atribut foto_siswa dengan nama file yang disimpan
+            $siswa->foto_siswa = $imageName;
+        }
+
+
+        // Simpan data siswa yang telah diupdate
+        $siswa->save();
+
+        // Sweet alert
+        Alert::success('Perubahan Berhasil', 'Data Siswa berhasil diubah.');
+
+        // Redirect ke halaman yang sesuai atau berikan respons JSON sesuai kebutuhan
+        return redirect()->route('kelas.show', $siswa->kelas_id);
     }
 
     /**
@@ -101,6 +278,25 @@ class KelasController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        $siswa = Siswa::find($id);
+
+        // Hapus file foto
+        if ($siswa->foto_siswa) {
+            $filePath = public_path('storage/siswa/' . $siswa->foto_siswa);
+
+            if (file_exists($filePath)) {
+                unlink($filePath);
+            }
+        }
+
+        $kelas_id = $siswa->kelas_id;
+
+        $siswa->delete();
+
+        // Sweet alert
+        Alert::success('Berhasil Dihapus', 'Data Siswa berhasil dihapus.');
+
+        return redirect()->route('kelas.show', $kelas_id);
     }
+
 }
