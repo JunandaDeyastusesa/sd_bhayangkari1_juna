@@ -14,7 +14,7 @@ return [
     */
 
     'defaults' => [
-        'guard' => 'web',
+        'guard' => 'guru',
         'passwords' => 'users',
     ],
 
@@ -36,11 +36,20 @@ return [
     */
 
     'guards' => [
-        'web' => [
+        // 'web' => [
+        //     'driver' => 'session',
+        //     'provider' => 'users',
+        // ],
+
+        'guru' => [
             'driver' => 'session',
-            'provider' => 'users',
+            'provider' => 'gurus',
         ],
-    ],
+        'waliMurid'=> [
+            'driver' => 'session',
+            'provider' => 'waliMurid',
+        ],
+],
 
     /*
     |--------------------------------------------------------------------------
@@ -69,6 +78,15 @@ return [
         //     'driver' => 'database',
         //     'table' => 'users',
         // ],
+
+        'gurus' => [
+            'driver' => 'eloquent',
+            'model' => App\Models\Guru::class,
+        ],
+        'waliMurid' => [
+            'driver' => 'eloquent',
+            'model' => App\Models\Siswa::class,
+        ],
     ],
 
     /*

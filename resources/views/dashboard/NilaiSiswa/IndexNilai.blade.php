@@ -12,7 +12,7 @@
                     </div><!-- /.col -->
                     <div class="col-sm-6">
                         <ol class="breadcrumb float-sm-right">
-                            <li class="breadcrumb-item"><a href="#">Home</a></li>
+                            <li class="breadcrumb-item"><a href="{{route('dashboard')}}">Home</a></li>
                             <li class="breadcrumb-item active">{{ $title }}</li>
                         </ol>
                     </div><!-- /.col -->
@@ -22,7 +22,7 @@
         <!-- /.content-header -->
 
         <!-- Main content -->
-        <section class="content nilai">
+        <section class="content">
             <div class="container-fluid">
 
                 @if (session('Success'))
@@ -35,28 +35,64 @@
                 @endif
 
 
-                <div class="row">
-                    @foreach ($kelas as $kelass)
-                        <div class="col-lg-3 col-6">
-                            <!-- small box -->
-                            {{-- <a class="link-kelas" href="{{ route('DaftarKelas') }}"> --}}
-                            <a href="{{ route('DaftarKelas', $kelass->id) }}">
-                                <div class="small-box">
-                                    <div class="inner p-4">
-                                        <h4 class="mb-0">{{ $kelass->nama_kelas }}</h4>
-                                        <p class="nama-guru mb-2">Sri Hidayatullah, S.Pd</p>
-                                        <p class="mb-0">Jumlah Siswa : 20</p>
-                                    </div>
-                                </div>
-                            </a>
-                        </div>
-                    @endforeach
-                </div>
+                <div class="row col-md-12">
+                    @foreach ($kelass as $kelass)
+                        @if ($kelass->angka_kelas <= 6)
+                            @if (Auth::guard('guru')->user()->level == 'wali kelas')
+                                @if (Auth::guard('guru')->user()->kelas_id == $kelass->id)
+                                    <!-- small box -->
+                                    {{-- <div class="col-lg-3 col-6">
+                                    <a class="link-kelas" href="{{ route('DaftarKelas') }}">
+                                    <a href="{{ route('DaftarKelas', $kelass->id) }}">
+                                        <div class="small-box py-3">
+                                            <div class="inner p-4">
+                                                <h4 class="mb-0">{{ $kelass->nama_kelas }}</h4>
+                                                <p class="mb-0">Jumlah Siswa : {{ $kelass->siswa_count }}</p>
+                                            </div>
+                                        </div>
+                                    </a>
+                                </div> --}}
+                                    <!-- small box -->
+                                    <div class="col-lg-3 col-6">
+                                        <div class="small-box bg-info">
+                                            <div class="inner">
+                                                <h3>{{ $kelass->nama_kelas }}</h3>
 
-            </div><!-- /.container-fluid -->
+                                                <p>Wali kelas: {{ $kelass->nama_guru }}</p>
+                                            </div>
+                                            <div class="icon">
+                                                <i class="ion ion-bag"></i>
+                                            </div>
+
+                                            <a href="{{ route('DaftarKelas', $kelass->id) }}" class="small-box-footer">More
+                                                info <i class="fas fa-arrow-circle-right"></i></a>
+                                        </div>
+                                    </div>
+                            </div>
+                @endif
+                @endif
+                @if (Auth::guard('guru')->user()->level == 'tata usaha')
+                <div class="col-lg-3 col-6">
+                    <div class="small-box bg-info">
+                        <div class="inner">
+                            <h3>{{ $kelass->nama_kelas }}</h3>
+
+                            <p>Jumlah Siswa: {{ $kelass->siswa_count }}</p>
+                            <p>Wali Kelas: {{ $kelass->nama_guru }}</p>
+                        </div>
+                        <div class="icon">
+                            <i class="ion ion-bag"></i>
+                        </div>
+                        <a href="{{ route('DaftarKelas', $kelass->id) }}" class="small-box-footer">More
+                            info <i class="fas fa-arrow-circle-right"></i></a>
+                    </div>
+                </div>
+                @endif
+                @endif
+                @endforeach
+            </div>
         </section>
-        <!-- /.content -->
-    </div>
+    </div><!-- /.container-fluid -->
 
     {{-- TOOLTIP TOOLS --}}
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
